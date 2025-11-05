@@ -3,14 +3,14 @@ import gymnasium as gym
 from agent import QLearningAgent
 import time
 
-
-map = generate_random_map(size=8, p=0.8, seed=42)
+map_size=16
+map = generate_random_map(size=map_size, p=0.8)
 env_name = 'FrozenLake-v1'
 env = gym.make(env_name, desc=map, is_slippery=False)
 
 agent = QLearningAgent(actions=range(env.action_space.n), exploration_decay=0.999)
 
-training_episodes = 5000
+training_episodes = 50000
 
 agent.train_mode()
 
@@ -20,10 +20,16 @@ for episode in range(training_episodes):
     state, _ = env.reset()
     done = False
     total_reward = 0
-
+    state_list=[]
     while not done:
         action = agent.choose_action(state)
         next_state, reward, terminated, truncated, _ = env.step(action)
+        #print(reward)
+        if reward==1: reward=1000000
+        else:
+            if not(state in state_list):
+                reward=state//map_size+state%map_size
+                state_list.append(state)
         done = terminated or truncated
 
         agent.learn(state, action, reward, next_state)

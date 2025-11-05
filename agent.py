@@ -7,13 +7,14 @@ class QLearningAgent:
         actions,
         learning_rate=0.1,
         discount_factor=0.99,
-        exploration_decay=0.995, # 0.995 decays epsilon to ~0.005 after 1000 episodes
+        exploration_decay=0.9995, # 0.995 decays epsilon to ~0.005 after 1000 episodes
         state_converter=None,
     ):
         self.actions = list(actions)
         self.lr = learning_rate
         self.gamma = discount_factor
-        self.epsilon = 1.0  
+        self.epsilon = 1.0
+        #self.epsilon = 0.2
         self.epsilon_decay = exploration_decay
         self.q_table = {}  # keys: (state_key, action)
         self.state_converter = state_converter if state_converter else (lambda s: s if isinstance(s, (int, str, tuple)) else tuple(np.array(s).ravel())) # Convert state to a hashable type
@@ -23,6 +24,7 @@ class QLearningAgent:
         return self.state_converter(state)
 
     def get_q_value(self, state, action):
+        #print(self.q_table)
         return self.q_table.get((self._key(state), action), 0.0) # default Q-value is 0.0
 
     def choose_action(self, state):
@@ -46,7 +48,8 @@ class QLearningAgent:
         self.q_table[(self._key(state), action)] = new_q
 
     def decay_exploration(self):
-        self.epsilon *= self.epsilon_decay
+        #a=1
+        if self.epsilon>0.05 :self.epsilon *= self.epsilon_decay
     
     def train_mode(self):
         self.training = True
